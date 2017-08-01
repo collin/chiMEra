@@ -1,18 +1,39 @@
-const User = require('./user')
+const User = require('./user');
+const Animal = require('./animal');
+const CartItem = require('./cartItem');
+const Enhancement = require('./enhancement');
+const Cart = require('./cart');
+const PastOrder = require('./pastOrder');
+const PastOrderItem = require('./pastOrderItem');
+const Address = require('./address');
+const Review = require('./review');
+const AnimalTag = require('./animalTag');
+const EnhancementTag = require('./enhancementTag');
 
-/**
- * If we had any associations to make, this would be a great place to put them!
- * ex. if we had another model called BlogPost, we might say:
- *
- *    BlogPost.belongsTo(User)
- */
+Animal.belongsToMany(AnimalTag, { as: 'tags', through: 'animalTagJoin' });
+AnimalTag.belongsToMany(Animal, { as: 'tags', through: 'animalTagJoin' });
+Enhancement.belongsToMany(EnhancementTag, { as: 'tags', through: 'enhancementTagJoin' });
+EnhancementTag.belongsToMany(Enhancement, { as: 'tags', through: 'enhancementTagJoin' });
 
-/**
- * We'll export all of our models here, so that any time a module needs a model,
- * we can just require it from 'db/models'
- * for example, we can say: const {User} = require('../db/models')
- * instead of: const User = require('../db/models/user')
- */
-module.exports = {
-  User
-}
+
+CartItem.belongsTo(Animal);
+CartItem.belongsTo(Enhancement);
+CartItem.belongsTo(Cart);
+Cart.hasMany(CartItem, { onDelete: 'cascade', hooks: true });
+User.hasOne(Cart, { onDelete: 'cascade', hooks: true });
+
+PastOrderItem.belongsTo(Animal);
+PastOrderItem.belongsTo(Enhancement);
+PastOrderItem.belongsTo(PastOrder);
+PastOrder.hasMany(PastOrderItem, { onDelete: 'cascade', hooks: true });
+PastOrder.belongsTo(User);
+
+Address.belongsTo(User);
+PastOrder.belongsTo(Address, { as: 'shippingAddress' });
+PastOrder.belongsTo(Address, { as: 'billingAddress' });
+
+Review.belongsTo(Animal);
+Review.belongsTo(Enhancement);
+Review.belongsTo(User);
+
+module.exports = { User, Animal, CartItem, Enhancement, Cart, PastOrder, PastOrderItem, Address, AnimalTag, EnhancementTag, Review };
